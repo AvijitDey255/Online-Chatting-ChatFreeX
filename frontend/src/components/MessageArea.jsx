@@ -7,24 +7,31 @@ import { IoMdArrowRoundBack } from "react-icons/io"
 import { RiEmojiStickerLine } from "react-icons/ri"
 import { FaRegImages } from "react-icons/fa6"
 
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import EmojiPicker from 'emoji-picker-react'
 import axios from 'axios'
 
 import SenderMessages from './SenderMessage'
 import ReceiverMessage from './ReceiverMessage'
-
+import { setMessages } from '../redux/messageSlice'
+import useGetMessages from '../customHooks/getMessages'
+import { useEffect } from 'react'
+import { setSelectedUser } from '../redux/userSlice'
+import { useNavigate } from 'react-router-dom'
 const MessageArea = () => {
+  useGetMessages()
+  const dispatch = useDispatch()
+  
 
-  const { selectedUser } = useSelector(state => state.user)
-const [loading, setLoading] = useState(false)
+  const { selectedUser, userData, onlineUsers } = useSelector(state => state.user)
+  const [loading, setLoading] = useState(false)
   const [showPicker, setshowPicker] = useState(false)
   const [input, setInput] = useState("")
   const [frontendImage, setfrontendImage] = useState(null)
   const [backendImage, setBackendImage] = useState(null)
-
+  const { messages } = useSelector(state => state.message)
   const imageRef = useRef()
-
+const navigate = useNavigate()
   const onEmojiClicks = (emojiData) => {
 
     setInput(prev => prev + emojiData.emoji)
@@ -70,7 +77,7 @@ const [loading, setLoading] = useState(false)
           }
         }
       )
-      console.log(result)
+      dispatch(setMessages([...messages, result.data]))
       setInput("")
       setBackendImage(null)
       setfrontendImage(null)
@@ -79,16 +86,59 @@ const [loading, setLoading] = useState(false)
 
     } catch (error) {
 
-      console.log(error)
+      console.log("message error")
       setLoading(false)
 
     }
 
   }
 
+
+  useEffect(() => {
+
+    if (!window.socket) return
+
+    const handleNewMessage = (newMessage) => {
+
+      if (
+        newMessage.sender === selectedUser?._id ||
+        newMessage.receiver === selectedUser?._id
+      ) {
+
+        dispatch(setMessages([...messages, newMessage]))
+
+      }
+
+    }
+
+    window.socket.on("newMessage", handleNewMessage)
+
+    return () => {
+
+      window.socket.off("newMessage", handleNewMessage)
+
+    }
+
+  }, [messages, selectedUser])
+
+
   return (
 
-    <div className='lg:w-[70%] w-full h-screen bg-slate-300 lg:block relative overflow-hidden'>
+    
+
+    <div
+      className={`
+    ${selectedUser ? "flex" : "hidden"}
+    lg:flex
+    flex-col
+    
+    w-full
+    h-screen
+    bg-slate-300
+    relative
+    overflow-hidden
+  `}
+    >
 
       {
 
@@ -100,7 +150,15 @@ const [loading, setLoading] = useState(false)
 
               <div className='flex items-center gap-3'>
 
-                <div className='mr-2 lg:hidden cursor-pointer text-2xl'>
+               
+
+                <div
+                  onClick={() => {
+                    dispatch(setSelectedUser(null))
+                    navigate("/")
+                  }}
+                  className='mr-2 lg:hidden cursor-pointer text-2xl'
+                >
                   <IoMdArrowRoundBack />
                 </div>
 
@@ -132,13 +190,13 @@ const [loading, setLoading] = useState(false)
 
             <div className='flex-1  overflow-y-auto users-scroll p-4 pb-28'>
 
-              <SenderMessages />
-              <ReceiverMessage />
-              <SenderMessages />
-              <ReceiverMessage />
-              <SenderMessages />
-              <SenderMessages />
-              <ReceiverMessage />
+
+              {
+
+                messages?.map((mess) => (
+                  mess.sender == userData._id ? <SenderMessages key={mess._id} dp_image={userData?.image} image={mess.image} message={mess.message} /> : <ReceiverMessage key={mess._id} dp_image={selectedUser?.image} image={mess.image} message={mess.message} />
+                ))
+              }
 
             </div>
 
@@ -256,12 +314,17 @@ const [loading, setLoading] = useState(false)
               </button>
 
               <button
-                disabled={loading}
+                disabled={loading || (!input.trim() && !backendImage)}
                 type='submit'
-                className='bg-[#0ca4d6] text-white lg:px-5 lg:py-2 px-3 py-2 rounded-xl hover:scale-105 transition cursor-pointer'
+                className={`text-white lg:px-5 lg:py-2 px-3 py-2 rounded-xl transition cursor-pointer
+    ${(!input.trim() && !backendImage)
+                    ? "bg-[#98a0a2] cursor-not-allowed"
+                    : "bg-[#0ca4d6] hover:scale-105"
+                  }`}
               >
-                
-                {loading ? "Sending...":"Send"}
+
+                {loading ? "Sending..." : "Send"}
+
               </button>
 
             </form>

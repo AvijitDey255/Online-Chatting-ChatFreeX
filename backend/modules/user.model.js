@@ -21,7 +21,15 @@ const userSchama = new mongoose.Schema({
     image:{
         type:String,
         default:""
-    }
+    },
+    isVarified:{
+        type:Boolean,
+        default:false
+    },
+    varifiedOTP:{
+        type:String
+    },
+    OTPExpited:Date,
 },{timeStamps:true})
 
 

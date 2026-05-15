@@ -32,7 +32,7 @@ const Signup = () => {
 
       const server_url = import.meta.env.VITE_SERVER_URL
 
-      await axios.post(
+      const result = await axios.post(
         `${server_url}/api/auth/signup`,
         {
           userName,
@@ -44,12 +44,19 @@ const Signup = () => {
         }
       )
 
-      setUserName("")
-      setEmail("")
-      setPassword("")
-      seterror("")
+      if (result.data.isVarified) {
+        setUserName("")
+        setEmail("")
+        setPassword("")
+        seterror("")
 
-      navigate("/login")
+        navigate("/login")
+      }else{
+        localStorage.setItem("verifyEmail", email)
+        navigate("/otp")
+      }
+
+
 
     } catch (error) {
 
@@ -67,9 +74,7 @@ const Signup = () => {
 
     <div className='w-full min-h-screen bg-gradient-to-br from-sky-100 via-slate-100 to-cyan-100 flex items-center justify-center p-4 overflow-hidden'>
 
-      <div className='absolute w-[300px] h-[300px] bg-sky-300 rounded-full blur-[120px] top-[-50px] left-[-50px] opacity-40'></div>
 
-      <div className='absolute w-[300px] h-[300px] bg-cyan-300 rounded-full blur-[120px] bottom-[-50px] right-[-50px] opacity-40'></div>
 
       <div className='relative z-10 w-full max-w-[430px] bg-white/70 backdrop-blur-xl border border-white/40 rounded-[35px] shadow-2xl overflow-hidden'>
 

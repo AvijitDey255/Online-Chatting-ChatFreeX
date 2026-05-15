@@ -7,7 +7,7 @@ const isAuth = (req, res, next) => {
     try {
 
         const token = req.cookies.token
-        console.log("is auth token ",token)
+        
 
         if (!token) {
 
@@ -24,13 +24,13 @@ const isAuth = (req, res, next) => {
 
         req.userId = verifiedToken.userId
 
-        console.log("is auth req.userId ",req.userId)
+        
 
         next()
 
     } catch (error) {
 
-        console.log(error)
+      
 
         return res.status(401).json({
             message: "unauthorized"

@@ -7,7 +7,7 @@ const getToken = async (userId) => {
 
         return token
 
-        console.log("token is ",token)
+        
     } catch (error) {
         console.log("getToken error")
     }

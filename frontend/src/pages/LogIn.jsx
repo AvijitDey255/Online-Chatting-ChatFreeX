@@ -26,6 +26,7 @@ const LogIn = () => {
   const [loading, setLoading] = useState(false)
   const [error, seterror] = useState("")
 
+
   const handleLogin = async (e) => {
 
     e.preventDefault()
@@ -47,7 +48,7 @@ const LogIn = () => {
         }
       )
 
-      dispatch(setUserData(result.data))
+      dispatch(setUserData(result.data.user))
 
       setEmail("")
       setPassword("")
@@ -57,7 +58,18 @@ const LogIn = () => {
 
     } catch (error) {
 
-      seterror(error?.response?.data?.message || "Login Failed")
+      const message =
+        error?.response?.data?.message || "Login Failed"
+
+      seterror(message)
+
+      // unverified email
+      if (message.includes("OTP sent")) {
+
+        localStorage.setItem("verifyEmail", email)
+
+        navigate("/otp")
+      }
 
     } finally {
 
@@ -69,17 +81,15 @@ const LogIn = () => {
 
   return (
 
-    <div className='w-full min-h-screen bg-gradient-to-br from-sky-100 via-slate-100 to-cyan-100 flex items-center justify-center p-4 overflow-hidden'>
+    <div className='w-full  min-h-screen bg-gradient-to-br from-sky-100 via-slate-100 to-cyan-100 flex items-center justify-center p-4 overflow-hidden'>
 
-     
-      <div className='absolute w-[300px] h-[300px] bg-sky-300 rounded-full blur-[120px] top-[-50px] left-[-50px] opacity-40'></div>
 
-      <div className='absolute w-[300px] h-[300px] bg-cyan-300 rounded-full blur-[120px] bottom-[-50px] right-[-50px] opacity-40'></div>
 
-      
+
+
       <div className='relative z-10 w-full max-w-[430px] bg-white/70 backdrop-blur-xl border border-white/40 rounded-[35px] shadow-2xl overflow-hidden'>
 
-   
+
         <div className='bg-gradient-to-r from-[#20c7ff] to-cyan-400 px-8 py-10 flex flex-col items-center justify-center'>
 
           <div className='w-20 h-20 rounded-full bg-white flex items-center justify-center shadow-lg mb-5'>
@@ -98,13 +108,13 @@ const LogIn = () => {
 
         </div>
 
-     
+
         <form
           onSubmit={handleLogin}
           className='px-7 py-8 flex flex-col gap-5'
         >
 
-        
+
           <div className='w-full h-[60px] bg-white rounded-2xl border border-slate-200 flex items-center px-4 shadow-sm focus-within:border-[#20c7ff] transition'>
 
             <HiOutlineMail className='text-2xl text-[#20c7ff]' />
@@ -119,7 +129,7 @@ const LogIn = () => {
 
           </div>
 
-        
+
           <div className='w-full h-[60px] bg-white rounded-2xl border border-slate-200 flex items-center px-4 shadow-sm focus-within:border-[#20c7ff] transition relative'>
 
             <RiLockPasswordLine className='text-2xl text-[#20c7ff]' />
@@ -146,7 +156,7 @@ const LogIn = () => {
 
           </div>
 
-          
+
           {
             error && (
 
@@ -159,7 +169,7 @@ const LogIn = () => {
             )
           }
 
-         
+
           <button
             disabled={loading}
             type='submit'
@@ -172,7 +182,7 @@ const LogIn = () => {
 
           </button>
 
-          
+
           <p className='text-center text-gray-600 mt-2'>
 
             Don't have an account ?

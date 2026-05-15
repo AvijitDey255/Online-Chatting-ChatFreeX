@@ -1,13 +1,14 @@
 import uploadCloudinary from "../config/cloudinary.js"
 import User from "../modules/user.model.js"
+import Conversation from "../modules/conversation.model.js"
 
 export const getCurrentUser = async (req, res) => {
     try {
 
         const userId = req.userId
-        console.log("userId",userId)
+       
         const user = await User.findById(userId).select("-password")
-        console.log("user",user)
+      
         if (!user) {
             return res.status(400).json({
                 message: "user not found"
@@ -18,7 +19,7 @@ export const getCurrentUser = async (req, res) => {
 
 
     } catch (error) {
-        console.log(error)
+        
         return res.status(500).json({
             message: "current user error"
         })
@@ -30,11 +31,11 @@ export const editProfile = async (req, res) => {
     try {
         const { name } = req.body
         let image = undefined
-        console.log("editProfile req.file: ",req.file)
+       
         if (req.file) {
             image = await uploadCloudinary(req.file.path)
         }
-        console.log("editProfile image: ",image)
+      
         const updatedData = {
             name
         }
@@ -77,4 +78,90 @@ export const getOtherUsers = async(req,res)=>{
             message: "getotherusers error"
         })
     }
+}
+
+
+
+
+export const getConversationUsers = async (req, res) => {
+
+    try {
+
+        const myId = req.userId
+
+        const conversations = await Conversation.find({
+            partcipants: myId
+        }).populate("partcipants", "-password")
+
+        let users = []
+
+        conversations.forEach((conv) => {
+
+            const otherUser = conv.partcipants.find(
+                (user) => user._id.toString() !== myId.toString()
+            )
+
+            if (otherUser) {
+                users.push(otherUser)
+            }
+
+        })
+
+        return res.status(200).json(users)
+
+    } catch (error) {
+
+       
+        return res.status(500).json({
+            message: "Conversation users error"
+        })
+
+    }
+
+}
+
+
+
+
+export const searchUser = async (req, res) => {
+
+    try {
+
+        const { keyword } = req.params
+
+        const myId = req.userId
+
+        if (!keyword) {
+
+            return res.status(400).json({
+                message: "Keyword is required"
+            })
+
+        }
+
+        const users = await User.find({
+
+            userName: {
+                $regex: keyword,
+                $options: "i"
+            },
+
+            _id: {
+                $ne: myId
+            }
+
+        }).select("-password")
+
+        return res.status(200).json(users)
+
+    } catch (error) {
+
+       
+
+        return res.status(500).json({
+            message: "Search user error"
+        })
+
+    }
+
 }

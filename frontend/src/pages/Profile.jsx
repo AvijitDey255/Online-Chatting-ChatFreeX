@@ -45,12 +45,11 @@ useEffect(() => {
       }
       const result = await axios.put(`${import.meta.env.VITE_SERVER_URL}/api/user/profile`, formData, { withCredentials: true })
       dispatch(setUserData(result.data))
-      console.log("progile send image ",backendImage)
-      console.log("profile result ",result)
+     
       setLoading(false)
 
     } catch (error) {
-      console.log(error)
+      console.log("handleProfile error")
       setLoading(false)
 
     }

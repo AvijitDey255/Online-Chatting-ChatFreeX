@@ -8,5 +8,4 @@ messageRouter.post("/send/:receiver",isAuth,upload.single("image"),sendMessage)
 messageRouter.get("/get/:receiver",isAuth,getMessage)
 
 
-
 export default messageRouter

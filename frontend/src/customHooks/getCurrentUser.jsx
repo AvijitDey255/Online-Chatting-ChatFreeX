@@ -26,7 +26,7 @@ const useGetCurrentUser = () => {
 
             } catch (error) {
 
-                console.log(error)
+                console.log("fetchUser erroe")
 
             }
 

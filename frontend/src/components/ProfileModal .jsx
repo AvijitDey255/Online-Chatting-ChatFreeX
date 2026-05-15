@@ -54,7 +54,7 @@ const ProfileModal = ({ open, onClose }) => {
       onClose()
 
     } catch (error) {
-      console.log(error)
+      console.log("profile error")
       setLoading(false)
     }
   }

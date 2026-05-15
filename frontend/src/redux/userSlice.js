@@ -6,7 +6,10 @@ const userSlice = createSlice({
     initialState: {
         userData: null,
         otherUsers:null,
-        selectedUser:null
+        selectedUser:null,
+        socket:null,
+        onlineUsers:null,
+        otherConversationUsers:null
     },
 
     reducers: {
@@ -18,8 +21,17 @@ const userSlice = createSlice({
         setOtherUsers: (state, action) => {
             state.otherUsers = action.payload
         },
+        setSocket: (state, action) => {
+            state.socket = action.payload
+        },
         setSelectedUser: (state, action) => {
             state.selectedUser = action.payload
+        },
+        setOnlineUsers: (state, action) => {
+            state.onlineUsers = action.payload
+        },
+        setOtherConversationUsers:(state, action) => {
+            state.otherConversationUsers = action.payload
         },
 
         clearUserData: (state) => {
@@ -35,7 +47,11 @@ export const {
     setUserData,
     clearUserData,
     setOtherUsers,
-    setSelectedUser
+    setSelectedUser,
+    setOnlineUsers,
+    setSocket,
+    setOtherConversationUsers
+
 } = userSlice.actions
 
 export default userSlice.reducer
